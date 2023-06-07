@@ -1,5 +1,7 @@
 'use strict';
 
+// обработку ошибок делал на основе своего опыта как разработчик и как пользователь
+
 const busyEmails = [
   'qwer@gmail.com',
   'test@gmail.com',
