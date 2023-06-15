@@ -8,49 +8,45 @@
     <script defer src="./js/index.js"></script>
     <link rel="stylesheet" href="./../common/css/reset.css" />
     <link rel="stylesheet" href="./css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
+      integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
+      crossorigin="anonymous"
+    />
   </head>
   <body>
     <div class="container">
-      <form id="signUpForm">
+      <form name="main" id="signUpForm">
         <h3 class="header">Регистрация</h3>
 
         <div class="inputs">
-          <input
-            id="nameInput"
-            type="text"
-            name="name"
-            placeholder="Ваше имя"
-          />
-          <p id="nameError" class="error"></p>
+          <div class="inputContainer">
+            <input type="text" name="name" placeholder="Ваше имя" />
+          </div>
+          <div class="inputContainer">
+            <input type="email" name="email" placeholder="Почта*" />
+          </div>
 
-          <input
-            id="emailInput"
-            type="email"
-            name="email"
-            placeholder="Почта*"
-            required
-          />
-          <p id="emailError" class="error"></p>
-
-          <input
-            id="passwordInput"
-            type="password"
-            name="password"
-            placeholder="Пароль*"
-            required
-          />
-          <p id="passwordError" class="error"></p>
+          <div class="inputContainer">
+            <div class="passwordVisibilityToggle">
+              <i class="far fa-eye"></i>
+              <i class="far fa-eye-slash"></i>
+            </div>
+            <input type="password" name="password" placeholder="Пароль*" />
+          </div>
 
           <div class="acceptAll">
-            <input
-              id="acceptAll"
-              name="accept-all-checkBox"
-              value="1"
-              type="checkbox"
-            />
+            <div class="inputContainer">
+              <input
+                id="acceptAll"
+                name="acceptAll"
+                value="1"
+                type="checkbox"
+              />
+            </div>
             <label class="terms" for="acceptAll">Согласен со всем</label>
           </div>
-          <p id="acceptError" class="error"></p>
 
           <button type="submit" id="submitButton">Зарегистрироваться</button>
         </div>

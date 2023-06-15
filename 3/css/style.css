@@ -38,7 +38,7 @@ input:not([type='checkbox']) {
   border: none;
   padding: 13px 10px;
   width: 330px;
-  margin-top: 1.75rem;
+  margin-top: 2rem;
   box-shadow: inset 0px 2px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -50,13 +50,13 @@ input:not([type='checkbox']):focus {
 }
 
 input[type='checkbox'] {
-  float: left;
   margin-right: 0.75rem;
 }
 
 .acceptAll {
   display: flex;
-  margin: 1.5rem 0 0.5rem;
+  margin-top: 1.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .terms {
@@ -66,7 +66,7 @@ input[type='checkbox'] {
 
 #submitButton {
   width: 100%;
-  margin-top: 20px;
+  margin-top: 1.5rem;
   padding: 15px 0;
   color: #fff;
   font-size: 1rem;
@@ -84,7 +84,37 @@ input[type='checkbox'] {
 }
 
 .error {
-  margin-top: 0.5rem;
-  font-size: 0.8rem;
+  position: absolute;
+  margin-top: 0.4rem;
+  font-size: 0.7rem;
   color: red;
+  width: 400px;
+}
+
+.inputContainer {
+  position: relative;
+}
+
+.inputContainer .passwordVisibilityToggle {
+  position: absolute;
+  bottom: 20%;
+  right: 20px;
+  color: gray;
+  cursor: pointer;
+}
+
+.passwordVisibilityToggle i:first-of-type {
+  display: block;
+}
+
+.passwordVisibilityToggle i:last-of-type {
+  display: none;
+}
+
+.passwordVisibilityToggle.show i:first-of-type {
+  display: none;
+}
+
+.passwordVisibilityToggle.show i:last-of-type {
+  display: block;
 }

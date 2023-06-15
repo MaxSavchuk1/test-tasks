@@ -1,7 +1,5 @@
 'use strict';
 
-// обработку ошибок делал на основе своего опыта как разработчик и как пользователь
-
 const busyEmails = [
   'qwer@gmail.com',
   'test@gmail.com',
@@ -9,155 +7,203 @@ const busyEmails = [
   'qwer@qwer.qwer',
 ];
 
-const form = document.getElementById('signUpForm');
+const formData = { name: '', email: '', password: '' };
 
-const nameInput = document.getElementById('nameInput');
-const emailInput = document.getElementById('emailInput');
-const passwordInput = document.getElementById('passwordInput');
-const acceptAllInput = document.getElementById('acceptAll');
+const form = document.forms.main;
 
-const nameError = document.getElementById('nameError');
-const emailError = document.getElementById('emailError');
-const passwordError = document.getElementById('passwordError');
-const acceptError = document.getElementById('acceptError');
-const submitButton = document.getElementById('submitButton');
+const {
+  name: nameInput,
+  email: emailInput,
+  password: passwordInput,
+  acceptAll: acceptAllInput,
+  submitButton,
+} = form;
 
-const inputs = document.querySelectorAll('input');
+const inputs = [nameInput, emailInput, passwordInput, acceptAllInput];
 
-inputs.forEach(el => el.addEventListener('input', inputHandler));
+const validate = {
+  isValidName: true,
+  isValidEmail: true,
+  isValidPassword: true,
+  isValidAcceptAll: true,
 
-let isTouchedForm = false;
-let isErrorState = false;
+  get isValidForm () {
+    return (
+      this.isValidName &&
+      this.isValidEmail &&
+      this.isValidPassword &&
+      this.isValidAcceptAll
+    );
+  },
 
-function inputHandler (e) {
-  if (isTouchedForm) {
-    if (e.target.id === 'acceptAll') {
-      isValidAcceptTerms();
-    }
-    if (e.target.id === 'nameInput') {
-      isValidName();
-    }
-    if (e.target.id === 'emailInput') {
-      isValidEmail();
-    }
-    if (e.target.id === 'passwordInput') {
-      isValidPassword();
-    }
-  }
-  if (!isErrorState) {
-    submitButton.disabled = false;
+  touch () {
+    this.email();
+    this.acceptAll();
+    this.password();
+    this.name();
+  },
+
+  disableButton () {
+    submitButton.classList.add('disabledButton');
+    submitButton.disabled = true;
+  },
+
+  enableButton () {
     submitButton.classList.remove('disabledButton');
+    submitButton.disabled = false;
+  },
+
+  createErrorElement () {
+    const errorElement = document.createElement('div');
+    errorElement.classList.add('error');
+    return errorElement;
+  },
+
+  addErrorElement (element) {
+    if (!element.nextElementSibling) {
+      element.classList.add('invalid');
+      const errorElement = this.createErrorElement();
+      element.parentElement.append(errorElement);
+    }
+  },
+
+  removeErrorElement (element) {
+    if (element.nextElementSibling) {
+      element.nextElementSibling.remove();
+      element.classList.remove('invalid');
+    }
+  },
+
+  email () {
+    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,8})+$/;
+
+    if (emailRegex.test(emailInput.value)) {
+      this.isValidEmail = true;
+      this.removeErrorElement(emailInput);
+      return true;
+    }
+
+    this.isValidEmail = false;
+    this.disableButton();
+    this.addErrorElement(emailInput);
+    emailInput.nextElementSibling.innerText = emailInput.value.trim()
+      ? 'Это не похоже на валидный адрес почты'
+      : 'Введите email';
+    return false;
+  },
+
+  acceptAll () {
+    if (!acceptAllInput.checked) {
+      this.isValidAcceptAll = false;
+      this.disableButton();
+      this.addErrorElement(acceptAllInput);
+      acceptAllInput.nextElementSibling.innerText = 'Надо согласиться!';
+      return false;
+    }
+    this.isValidAcceptAll = true;
+    this.removeErrorElement(acceptAllInput);
+    return true;
+  },
+
+  password () {
+    const setInvalidPassword = errorText => {
+      this.isValidPassword = false;
+      this.disableButton();
+      this.addErrorElement(passwordInput);
+      passwordInput.nextElementSibling.innerText = errorText;
+    };
+
+    if (passwordInput.value.length <= 5) {
+      setInvalidPassword('Пароль должен быть больше 5 символов');
+      return false;
+    }
+    if (/^(?:[a-zA-Z]+|\d+)$/.test(passwordInput.value)) {
+      setInvalidPassword('Простой пароль');
+      return false;
+    }
+    if (!/^[a-zA-Z0-9_-]+$/.test(passwordInput.value)) {
+      setInvalidPassword(
+        'Пароль должен содержать только латинские буквы, цифры, нижнее подчеркивание (_), тире (-)'
+      );
+      return false;
+    }
+    this.isValidPassword = true;
+    this.removeErrorElement(passwordInput);
+    return true;
+  },
+
+  name () {
+    const nameRegex = /^[a-zA-Z]{2,}$/;
+    if (nameInput.value) {
+      if (nameRegex.test(nameInput.value)) {
+        this.isValidName = true;
+        this.removeErrorElement(nameInput);
+        return true;
+      }
+      this.isValidName = false;
+      this.disableButton();
+      this.addErrorElement(nameInput);
+      nameInput.nextElementSibling.innerText =
+        'Имя должно содержать минимум 2 латинские буквы и только буквы';
+      return false;
+    }
+    this.isValidName = true;
+    this.removeErrorElement(nameInput);
+  },
+};
+
+function inputHandler () {
+  formData.name = nameInput.value;
+  formData.email = emailInput.value;
+  formData.password = passwordInput.value;
+
+  !validate.isValidEmail && validate.email();
+  !validate.isValidPassword && validate.password();
+  !validate.isValidName && validate.name();
+  !validate.isValidAcceptAll && validate.acceptAll();
+
+  if (validate.isValidForm) {
+    validate.enableButton();
+  }
+}
+
+function blurHandler (e) {
+  if (e.target.name in validate) {
+    validate[e.target.name]();
+  }
+}
+
+inputs.forEach(el => {
+  el.addEventListener('input', inputHandler);
+  el.addEventListener('blur', blurHandler);
+});
+
+const passwordVisibilityToggle = document.querySelector(
+  '.passwordVisibilityToggle'
+);
+passwordVisibilityToggle.addEventListener('click', e => {
+  e.currentTarget.classList.toggle('show');
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
   } else {
-    submitButton.disabled = true;
-    submitButton.classList.add('disabledButton');
+    passwordInput.type = 'password';
   }
-}
+  passwordInput.focus();
+});
 
-function isValidName () {
-  const nameRegex = /^[a-zA-Z]{2,}$/;
-  const trimmedValue = nameInput.value.trim();
-  if (trimmedValue === '' || (trimmedValue && nameRegex.test(trimmedValue))) {
-    nameError.innerText = '';
-    nameInput.classList.remove('invalid');
-    isErrorState = false;
-    return true;
-  }
-  isErrorState = true;
-  nameError.innerText =
-    'Имя должно состоять минимум из 2-х букв и содержать только латинские буквы';
-  nameInput.classList.add('invalid');
-}
-
-function isValidEmail () {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const trimmedValue = emailInput.value.trim();
-  if (
-    trimmedValue === '' ||
-    (trimmedValue && emailRegex.test(emailInput.value))
-  ) {
-    emailError.innerText = '';
-    emailInput.classList.remove('invalid');
-    isErrorState = false;
-    return true;
-  }
-  isErrorState = true;
-  emailError.innerText = 'Это не похоже на валидный адрес почты';
-  emailInput.classList.add('invalid');
-}
-
-function isEmailNotBusy () {
-  if (busyEmails.includes(emailInput.value)) {
-    emailError.innerText = 'Эта почта уже используется';
-    emailInput.classList.add('invalid');
-    isErrorState = true;
-    return false;
-  }
-  isErrorState = false;
-  emailError.innerText = '';
-  emailInput.classList.remove('invalid');
-}
-
-function isValidPassword () {
-  if (passwordInput.value.length <= 5) {
-    isErrorState = true;
-    passwordError.innerText = 'Пароль должен быть больше 5 символов';
-    passwordInput.classList.add('invalid');
-    return false;
-  }
-  if (/^(?:[a-zA-Z]+|\d+)$/.test(passwordInput.value)) {
-    isErrorState = true;
-    passwordError.innerText = 'Простой пароль';
-    !passwordInput.classList.contains('invalid') &&
-      passwordInput.classList.add('invalid');
-    return false;
-  }
-  if (!/^[a-zA-Z0-9_-]+$/.test(passwordInput.value)) {
-    isErrorState = true;
-    passwordError.innerText =
-      'Пароль должен содержать только латинские буквы, цифры, нижнее подчеркивание (_), тире (-)';
-    !passwordInput.classList.contains('invalid') &&
-      passwordInput.classList.add('invalid');
-    return false;
-  }
-  isErrorState = false;
-  passwordError.innerText = '';
-  passwordInput.classList.remove('invalid');
-}
-
-function isValidAcceptTerms () {
-  if (!acceptAllInput.checked) {
-    acceptError.innerText = 'Надо согласиться!';
-    isErrorState = true;
-    return false;
-  }
-  acceptError.innerText = '';
-  isErrorState = false;
-}
-
-function touchForm () {
-  if (!isTouchedForm) {
-    isTouchedForm = true;
-    isValidName();
-    isValidEmail();
-    isEmailNotBusy();
-    isValidPassword();
-    isValidAcceptTerms();
-  }
-}
-
-form.addEventListener('submit', submitHandler);
-
-function submitHandler (e) {
+form.addEventListener('submit', function (e) {
   e.preventDefault();
-  touchForm();
-  sendForm();
-}
-
-function sendForm () {
-  if (!isErrorState) {
-    submitButton.disabled = true;
-    submitButton.classList.add('disabledButton');
-  } else {
-    //send form
+  validate.touch();
+  if (!validate.isValidForm) {
+    return false;
   }
-}
+
+  console.log('Форма отправлена >>>', formData);
+
+  if (busyEmails.some(email => email === formData.email)) {
+    validate.isValidEmail = false;
+    validate.disableButton();
+    validate.addErrorElement(emailInput);
+    emailInput.nextElementSibling.innerText = 'Email уже используется';
+  }
+});
